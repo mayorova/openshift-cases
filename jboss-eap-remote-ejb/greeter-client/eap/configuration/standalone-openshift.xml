@@ -67,6 +67,7 @@
                     <secret value="cGFzc3cwcmQh"/>
                 </server-identities>
             </security-realm>
+        </security-realms>
         <audit-log>
             <formatters>
                 <json-formatter name="json-formatter"/>
