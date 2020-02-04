@@ -61,7 +61,12 @@
                     <properties path="application-roles.properties" relative-to="jboss.server.config.dir"/>
                 </authorization>
             </security-realm>
-        </security-realms>
+            <!-- Added for remote EJB -->
+            <security-realm name="ejb-security-realm">
+                <server-identities>
+                    <secret value="cGFzc3cwcmQh"/>
+                </server-identities>
+            </security-realm>
         <audit-log>
             <formatters>
                 <json-formatter name="json-formatter"/>
@@ -500,6 +505,21 @@
         <subsystem xmlns="urn:jboss:domain:pojo:1.0"/>
         <subsystem xmlns="urn:jboss:domain:remoting:4.0">
             <http-connector name="http-remoting-connector" connector-ref="default" security-realm="ApplicationRealm"/>
+            <outbound-connections>
+                <!-- Added for remote EJB -->
+                <remote-outbound-connection name="remote-ejb-connection" 
+                                            outbound-socket-binding-ref="remote-socket-ejb" 
+                                            security-realm="ejb-security-realm" 
+                                            username="ejb">
+                  <properties>
+                    <property name="SASL_POLICY_NOANONYMOUS" value="false"/>
+                    <property name="SSL_ENABLED" value="false"/>
+                    <property name="org.jboss.remoting3.RemotingOptions.HEARTBEAT_INTERVAL" value="50000"/>
+                    <property name="KEEP_ALIVE" value="true"/>
+                    <property name="READ_TIMEOUT" value="60000"/>
+                  </properties>
+                </remote-outbound-connection>
+              </outbound-connections>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:request-controller:1.0"/>
         <subsystem xmlns="urn:jboss:domain:resource-adapters:5.0">
@@ -629,6 +649,10 @@
         <socket-binding name="txn-status-manager" port="4713"/>
         <outbound-socket-binding name="mail-smtp">
             <remote-destination host="localhost" port="25"/>
+        </outbound-socket-binding>
+        <!-- Added for remote EJB -->
+        <outbound-socket-binding name="remote-socket-ejb">
+            <remote-destination host="${remote.ejb.host:localhost}" port="${remote.ejb.port:8080}"/>
         </outbound-socket-binding>
     </socket-binding-group>
 </server>
